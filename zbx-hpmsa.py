@@ -4,7 +4,7 @@ import os
 import json
 import shutil
 import urllib3
-from hashlib import md5
+from hashlib import sha256
 from socket import gethostbyname
 from argparse import ArgumentParser
 from xml.etree import ElementTree as eTree
@@ -61,13 +61,13 @@ def install_script(tmp_dir, group):
 
 def make_cred_hash(cred, isfile=False):
     """
-    Return md5 hash of login string.
+    Return sha256 hash of login string.
 
     :param cred: Login string in 'user_password' format or path to the file with credentials.
     :type cred: str
     :param isfile: Is the 'cred' is path to file.
     :type isfile: bool
-    :return: md5 hash.
+    :return: sha256 hash.
     :rtype: str
     """
 
@@ -76,13 +76,13 @@ def make_cred_hash(cred, isfile=False):
             with open(cred, 'r') as login_file:
                 login_data = login_file.readline().replace('\n', '').strip()
                 if login_data.find('_') != -1:
-                    hashed = md5(login_data.encode()).hexdigest()
+                    hashed = sha256(login_data.encode()).hexdigest()
                 else:
                     hashed = login_data
         except FileNotFoundError:
             raise SystemExit("ERROR: File with login data doesn't exists: {}".format(cred))
     else:
-        hashed = md5(cred.encode()).hexdigest()
+        hashed = sha256(cred.encode()).hexdigest()
     return hashed
 
 
@@ -141,7 +141,7 @@ def get_skey(msa, hashed_login, use_cache=True):
 
     :param msa: MSA IP address and DNS name.
     :type msa: tuple
-    :param hashed_login: Hashed with md5 login data.
+    :param hashed_login: Hashed with sha256 login data.
     :type hashed_login: str
     :param use_cache: The function will try to save session key to disk.
     :type use_cache: bool
